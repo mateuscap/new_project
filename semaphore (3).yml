@@ -1,0 +1,48 @@
+version: v1.0
+name: Convo 46047
+agent:
+  machine:
+    os_image: ubuntu2004
+    type: e1-standard-2
+execution_time_limit:
+  minutes: 2
+blocks:
+  - name: Linux
+    dependencies: []
+    task:
+      env_vars: []
+      jobs:
+        - name: what if
+          commands:
+            - 'if [ "a" == "a" ]; then echo "oK" > file.txt; else exit; fi'
+            - 'if [ -a file.txt ]; then echo OK; else exit; fi'
+            - ':'
+            - 'if [ "a" == "b" ]; then echo "oK" > dummy.txt; else echo "not ok"; fi'
+            - '#if [ -a dummy.txt ]; then echo OK; else exit 1; fi'
+        - name: create file if
+          commands:
+            - '#if [ "a" == "a" ]; then echo "OK" > file_A; fi'
+            - '#if [ -a file_A ]; then echo OK; else exit; fi'
+            - '#:'
+            - '#if [ "a" == "a" ]; then echo "OK" > file_B; fi'
+            - '#if [ -a file_B]; then echo OK; else exit; fi'
+promotions:
+  - name: Deploy to Heroku
+    pipeline_file: pipeline_4.yml
+  - name: Promotion 2
+    pipeline_file: pipeline_8.yml
+    deployment_target: staging
+    auto_promote:
+      when: branch = 'master'
+    parameters:
+      env_vars:
+        - required: true
+          options: []
+          default_value: ''
+          description: ''
+          name: ''
+  - name: no skip target
+    pipeline_file: pipeline_9.yml
+    deployment_target: no_skip_target
+    auto_promote:
+      when: result = 'passed'
